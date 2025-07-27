@@ -272,6 +272,3 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     });
   }
 }
-
-// Export as default for Vercel
-export default handler;
