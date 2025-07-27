@@ -1,0 +1,14 @@
+{
+  "version": 2,
+  "functions": {
+    "api/mcp.ts": {
+      "maxDuration": 30
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "/api/mcp"
+    }
+  ]
+}
