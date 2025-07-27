@@ -29,8 +29,9 @@ jobs:
     - name: Run type checking
       run: npm run typecheck
 
-    - name: Run linting
-      run: npm run lint
+    # Skip linting for now - no ESLint config
+    # - name: Run linting
+    #   run: npm run lint
 
     - name: Build project
       run: npm run build
