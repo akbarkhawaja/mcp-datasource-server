@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MCP Datasource Server</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 50px auto; padding: 20px; }
+        .header { text-align: center; margin-bottom: 40px; }
+        .endpoint { background: #f5f5f5; padding: 15px; margin: 10px 0; border-radius: 5px; }
+        .method { color: #2563eb; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🔌 MCP Datasource Server</h1>
+        <p>Secure Model Context Protocol server for MySQL databases</p>
+    </div>
+
+    <h2>API Endpoints</h2>
+    
+    <div class="endpoint">
+        <div class="method">GET /api/health</div>
+        <p>Health check endpoint - returns server and database status</p>
+    </div>
+
+    <div class="endpoint">
+        <div class="method">POST /api/mcp/tools/list</div>
+        <p>List available MCP tools</p>
+    </div>
+
+    <div class="endpoint">
+        <div class="method">POST /api/mcp/tools/call</div>
+        <p>Execute MCP tool calls with query validation</p>
+    </div>
+
+    <h2>Security Features</h2>
+    <ul>
+        <li>🔐 Readonly database access</li>
+        <li>🛡️ SQL injection prevention</li>
+        <li>⚡ Rate limiting (10 requests/minute)</li>
+        <li>🔑 API key authentication (optional)</li>
+        <li>📊 Query validation and sanitization</li>
+    </ul>
+
+    <h2>Claude Desktop Integration</h2>
+    <p>To use with Claude Desktop, add this server to your MCP configuration:</p>
+    <pre><code>{
+  "mcpServers": {
+    "datasource-server": {
+      "command": "curl",
+      "args": [
+        "-X", "POST",
+        "https://your-deployment.vercel.app/api/mcp/tools/call",
+        "-H", "Content-Type: application/json",
+        "-H", "X-API-Key: your-api-key"
+      ]
+    }
+  }
+}</code></pre>
+
+    <p><strong>Documentation:</strong> <a href="https://github.com/akbarkhawaja/mcp-datasource-server" target="_blank">GitHub Repository</a></p>
+</body>
+</html>
