@@ -154,7 +154,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         const { pathname, searchParams } = new URL(req.url!, `http://${req.headers.host}`);
 
         // Handle /api/mcp-connector route with different actions
-        if (pathname === '/api/mcp-connector') {
+        // Accept any pathname that ends with mcp-connector or is exactly the route
+        if (pathname === '/api/mcp-connector' || pathname.endsWith('/mcp-connector') || pathname === '/') {
           const action = searchParams.get('action') || 'health';
           
           if (action === 'health') {
@@ -293,7 +294,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           return resolve(res);
         }
 
-        res.status(404).json({ error: 'Not found', message: 'Endpoint not found' });
+        res.status(404).json({ 
+          error: 'Not found', 
+          message: 'Endpoint not found',
+          debug: {
+            pathname,
+            url: req.url,
+            method: req.method
+          }
+        });
         resolve(res);
 
       } catch (error) {
