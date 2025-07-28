@@ -2,6 +2,9 @@ import { VercelRequest, VercelResponse } from '@vercel/node';
 import { Connector, IpAddressTypes } from '@google-cloud/cloud-sql-connector';
 import mysql from 'mysql2/promise';
 import cors from 'cors';
+import { writeFileSync, unlinkSync } from 'fs';
+import { tmpdir } from 'os';
+import { join } from 'path';
 
 // CORS configuration for public access
 const corsOptions = {
@@ -58,32 +61,58 @@ function authenticateRequest(req: VercelRequest): boolean {
 
 // Create database connection using Cloud SQL Connector
 async function createConnection() {
-  const connector = getConnector();
+  // Set up Google Cloud authentication from environment variable
+  let tempCredentialsPath: string | null = null;
   
-  // Get connection configuration
-  const instanceConnectionName = process.env.INSTANCE_CONNECTION_NAME;
-  if (!instanceConnectionName) {
-    throw new Error('INSTANCE_CONNECTION_NAME environment variable is required');
+  if (process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON) {
+    // Create temporary file for credentials
+    tempCredentialsPath = join(tmpdir(), `gcp-credentials-${Date.now()}.json`);
+    writeFileSync(tempCredentialsPath, process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON);
+    process.env.GOOGLE_APPLICATION_CREDENTIALS = tempCredentialsPath;
   }
   
-  // Check if we have the required credentials
-  if (!process.env.DB_USER || !process.env.DB_PASSWORD || !process.env.DB_NAME) {
-    throw new Error('Missing required database credentials: DB_USER, DB_PASSWORD, DB_NAME');
+  try {
+    const connector = getConnector();
+    
+    // Get connection configuration
+    const instanceConnectionName = process.env.INSTANCE_CONNECTION_NAME;
+    if (!instanceConnectionName) {
+      throw new Error('INSTANCE_CONNECTION_NAME environment variable is required');
+    }
+    
+    // Check if we have the required credentials
+    if (!process.env.DB_USER || !process.env.DB_PASSWORD || !process.env.DB_NAME) {
+      throw new Error('Missing required database credentials: DB_USER, DB_PASSWORD, DB_NAME');
+    }
+    
+    // Check if we have Google Cloud credentials
+    if (!process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON) {
+      throw new Error('GOOGLE_APPLICATION_CREDENTIALS_JSON environment variable is required');
+    }
+
+    const clientOpts = await connector.getOptions({
+      instanceConnectionName,
+      ipType: IpAddressTypes.PUBLIC,
+    });
+
+    const connection = await mysql.createConnection({
+      ...clientOpts,
+      user: process.env.DB_USER,
+      password: process.env.DB_PASSWORD,
+      database: process.env.DB_NAME,
+    });
+
+    return connection;
+  } finally {
+    // Clean up temporary credentials file
+    if (tempCredentialsPath) {
+      try {
+        unlinkSync(tempCredentialsPath);
+      } catch (error) {
+        console.warn('Failed to clean up temporary credentials file:', error);
+      }
+    }
   }
-  
-  const clientOpts = await connector.getOptions({
-    instanceConnectionName,
-    ipType: IpAddressTypes.PUBLIC,
-  });
-
-  const connection = await mysql.createConnection({
-    ...clientOpts,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME,
-  });
-
-  return connection;
 }
 
 // Execute safe query
@@ -175,7 +204,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
               res.status(500).json({
                 status: 'unhealthy',
                 timestamp: new Date().toISOString(),
-                error: error instanceof Error ? error.message : 'Database connection failed'
+                error: error instanceof Error ? error.message : 'Database connection failed',
+                debug: {
+                  hasGoogleCreds: !!process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON,
+                  hasInstanceName: !!process.env.INSTANCE_CONNECTION_NAME,
+                  hasDbUser: !!process.env.DB_USER,
+                  hasDbPassword: !!process.env.DB_PASSWORD,
+                  hasDbName: !!process.env.DB_NAME,
+                  instanceName: process.env.INSTANCE_CONNECTION_NAME?.substring(0, 20) + '...',
+                  dbUser: process.env.DB_USER
+                }
               });
             }
             return resolve(res);
