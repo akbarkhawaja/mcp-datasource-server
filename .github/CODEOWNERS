@@ -1,0 +1,44 @@
+# Code Owners for MCP Datasource Server
+# 
+# This file defines who should review changes to specific files/directories.
+# On GitHub Free, this serves as documentation. GitHub Pro/Team enables automatic assignment.
+#
+# Global fallback - all files
+* @akbarkhawaja
+
+# Core MCP server files - require owner review
+/src/mcp-*.ts @akbarkhawaja
+/api/ @akbarkhawaja
+
+# Security-critical files - require owner review  
+/src/security/ @akbarkhawaja
+/src/database/ @akbarkhawaja
+
+# Environment and configuration - require owner review
+/.env.example @akbarkhawaja
+/vercel.json @akbarkhawaja
+/tsconfig.json @akbarkhawaja
+
+# CI/CD and deployment - require owner review
+/.github/ @akbarkhawaja
+/scripts/setup-gcp.sh @akbarkhawaja
+
+# Documentation - can be reviewed by contributors
+/docs/ @akbarkhawaja
+/README.md @akbarkhawaja
+
+# Dependencies - require owner review for security
+/package.json @akbarkhawaja
+/package-lock.json @akbarkhawaja
+
+# Future team members (uncomment and modify as needed):
+# Frontend/UI contributions
+# /src/ui/ @frontend-team
+
+# DevOps/Infrastructure
+# /.github/workflows/ @devops-team @akbarkhawaja
+# /scripts/ @devops-team @akbarkhawaja
+
+# Database/Backend
+# /src/database/ @backend-team @akbarkhawaja
+# /src/security/ @backend-team @akbarkhawaja

@@ -39,7 +39,7 @@ function checkRateLimit(ip: string): boolean {
 
 // API Key authentication (optional but recommended)
 function authenticateRequest(req: VercelRequest): boolean {
-  const apiKey = process.env.PUBLIC_API_KEY;
+  const apiKey = process.env.API_KEY;
   if (!apiKey) return true; // No API key required if not set
   
   const providedKey = req.headers['x-api-key'] || req.headers['authorization']?.replace('Bearer ', '');
@@ -52,24 +52,24 @@ let pool: mysql.Pool | null = null;
 function getDbPool() {
   if (!pool) {
     pool = mysql.createPool({
-      host: process.env.PUBLIC_DB_HOST,
-      port: parseInt(process.env.PUBLIC_DB_PORT || '3306', 10),
-      user: process.env.PUBLIC_DB_USER,
-      password: process.env.PUBLIC_DB_PASSWORD,
-      database: process.env.PUBLIC_DB_NAME,
+      host: process.env.DB_HOST,
+      port: parseInt(process.env.DB_PORT || '3306', 10),
+      user: process.env.DB_USER,
+      password: process.env.DB_PASSWORD,
+      database: process.env.DB_NAME,
       connectionLimit: 5,
       charset: 'utf8mb4',
-      ssl: process.env.PUBLIC_DB_SSL === 'true' ? {
+      ssl: process.env.DB_SSL === 'true' ? {
         rejectUnauthorized: true,
-        ca: process.env.PUBLIC_DB_SSL_CA_BASE64 
-          ? Buffer.from(process.env.PUBLIC_DB_SSL_CA_BASE64, 'base64')
-          : process.env.PUBLIC_DB_SSL_CA ? readFileSync(process.env.PUBLIC_DB_SSL_CA) : undefined,
-        cert: process.env.PUBLIC_DB_SSL_CERT_BASE64
-          ? Buffer.from(process.env.PUBLIC_DB_SSL_CERT_BASE64, 'base64')
-          : process.env.PUBLIC_DB_SSL_CERT ? readFileSync(process.env.PUBLIC_DB_SSL_CERT) : undefined,
-        key: process.env.PUBLIC_DB_SSL_KEY_BASE64
-          ? Buffer.from(process.env.PUBLIC_DB_SSL_KEY_BASE64, 'base64')
-          : process.env.PUBLIC_DB_SSL_KEY ? readFileSync(process.env.PUBLIC_DB_SSL_KEY) : undefined
+        ca: process.env.DB_SSL_CA_BASE64 
+          ? Buffer.from(process.env.DB_SSL_CA_BASE64, 'base64')
+          : process.env.DB_SSL_CA ? readFileSync(process.env.DB_SSL_CA) : undefined,
+        cert: process.env.DB_SSL_CERT_BASE64
+          ? Buffer.from(process.env.DB_SSL_CERT_BASE64, 'base64')
+          : process.env.DB_SSL_CERT ? readFileSync(process.env.DB_SSL_CERT) : undefined,
+        key: process.env.DB_SSL_KEY_BASE64
+          ? Buffer.from(process.env.DB_SSL_KEY_BASE64, 'base64')
+          : process.env.DB_SSL_KEY ? readFileSync(process.env.DB_SSL_KEY) : undefined
       } : undefined,
     });
   }
@@ -87,6 +87,8 @@ async function executeSafeQuery(query: string, limit: number = 50): Promise<any>
   const allowedPatterns = [
     /^SHOW TABLES$/,
     /^SHOW DATABASES$/,
+    /^SELECT 1$/,
+    /^SELECT \d+$/,
     /^SELECT \* FROM \w+ LIMIT \d+$/,
     /^SELECT .+ FROM \w+ LIMIT \d+$/,
     /^DESCRIBE \w+$/,

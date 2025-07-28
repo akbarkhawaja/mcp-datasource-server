@@ -1,2 +1,2 @@
 // Vercel API endpoint for MCP server
-export { default } from '../src/mcp-vercel-public';
+export { default } from '../src/mcp-vercel-public.js';

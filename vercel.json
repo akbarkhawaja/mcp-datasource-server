@@ -1,14 +1,30 @@
 {
   "version": 2,
+  "buildCommand": "npm run build",
   "functions": {
     "api/mcp.ts": {
       "maxDuration": 30
     }
   },
-  "rewrites": [
+  "routes": [
     {
-      "source": "/api/(.*)",
-      "destination": "/api/mcp"
+      "src": "/",
+      "dest": "/public/index.html"
+    },
+    {
+      "src": "/api/health",
+      "dest": "/api/mcp.ts"
+    },
+    {
+      "src": "/api/mcp/(.*)",
+      "dest": "/api/mcp.ts"
+    },
+    {
+      "src": "/api/(.*)",
+      "dest": "/api/mcp.ts"
     }
-  ]
+  ],
+  "env": {
+    "NODE_ENV": "production"
+  }
 }
