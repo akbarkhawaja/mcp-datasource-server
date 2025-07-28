@@ -87,6 +87,8 @@ async function executeSafeQuery(query: string, limit: number = 50): Promise<any>
   const allowedPatterns = [
     /^SHOW TABLES$/,
     /^SHOW DATABASES$/,
+    /^SELECT 1$/,
+    /^SELECT \d+$/,
     /^SELECT \* FROM \w+ LIMIT \d+$/,
     /^SELECT .+ FROM \w+ LIMIT \d+$/,
     /^DESCRIBE \w+$/,
