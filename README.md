@@ -77,7 +77,7 @@ A secure, production-ready Model Context Protocol (MCP) server that provides rea
          "command": "curl",
          "args": [
            "-X", "POST",
-           "https://your-app.vercel.app/api/mcp/tools/call",
+           "https://your-deployment.vercel.app/api/mcp/tools/call",
            "-H", "Content-Type: application/json",
            "-H", "X-API-Key: your-api-key"
          ]

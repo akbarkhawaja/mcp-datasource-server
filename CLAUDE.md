@@ -18,8 +18,10 @@ npm run dev           # Local Vercel development server
 
 ### MCP Server Modes
 ```bash
-npm run local         # Local MCP server for direct Claude Desktop integration
-npm run bridge        # HTTP-to-stdio bridge for connecting local Claude to Vercel deployment
+npm run local              # Local MCP server for direct Claude Desktop integration
+npm run bridge             # HTTP-to-stdio bridge (uses env vars or defaults to staging)
+npm run bridge:staging     # Bridge to staging deployment (preview environment)
+npm run bridge:production  # Bridge to production deployment (main branch)
 ```
 
 ### Testing and Validation
@@ -55,6 +57,7 @@ The codebase implements **defense-in-depth** with four security layers:
 - **Production/Staging**: Uses `PUBLIC_DB_*` prefix for database connection
 - **SSL Certificates**: Supports both file paths and base64-encoded certificates
 - **API Security**: `PUBLIC_API_KEY` for authentication (optional but recommended)
+- **Bridge Configuration**: `VERCEL_URL` and `BRIDGE_API_KEY` for connecting local Claude Desktop to Vercel deployment
 
 ### Claude Desktop Integration
 The project provides three integration methods in `claude_desktop_config.json`:
@@ -69,12 +72,22 @@ The project provides three integration methods in `claude_desktop_config.json`:
 }
 ```
 
-2. **Bridge to Vercel** (for testing production deployment):
+2. **Bridge to Staging** (for testing staging deployment):
 ```json
 {
-  "vercel-datasource-bridge": {
+  "vercel-staging-bridge": {
     "command": "wsl", 
-    "args": ["-e", "bash", "-c", "cd /path && node dist/mcp-vercel-bridge.js"]
+    "args": ["-e", "bash", "-c", "cd /path && npm run bridge:staging"]
+  }
+}
+```
+
+3. **Bridge to Production** (for production deployment):
+```json
+{
+  "vercel-production-bridge": {
+    "command": "wsl", 
+    "args": ["-e", "bash", "-c", "cd /path && npm run bridge:production"]
   }
 }
 ```

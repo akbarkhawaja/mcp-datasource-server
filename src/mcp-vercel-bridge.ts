@@ -9,9 +9,9 @@ import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { CallToolRequestSchema, ListToolsRequestSchema } from '@modelcontextprotocol/sdk/types.js';
 
-// Configuration
-const VERCEL_URL = 'https://mcp-datasource-server-akbarkhawaja-1982-akbar-khawajas-projects.vercel.app';
-const API_KEY = '3cb61a707f06ec14e54fbf28bb701ec7653abccaada2df916f4161c5ec7e0b38';
+// Configuration - Environment-based
+const VERCEL_URL = process.env.VERCEL_URL || 'https://your-deployment-url.vercel.app';
+const API_KEY = process.env.BRIDGE_API_KEY || 'your-api-key-here';
 
 // Completely silence stdout and stderr except for MCP JSON-RPC
 const originalStdout = process.stdout.write;
