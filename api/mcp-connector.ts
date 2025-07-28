@@ -63,6 +63,11 @@ async function createConnection() {
   // Get connection configuration
   const instanceConnectionName = process.env.INSTANCE_CONNECTION_NAME || 'fresh-analytics-326706:us-central1:analytics-db';
   
+  // Check if we have the required credentials
+  if (!process.env.DB_USER || !process.env.DB_PASSWORD || !process.env.DB_NAME) {
+    throw new Error('Missing required database credentials: DB_USER, DB_PASSWORD, DB_NAME');
+  }
+  
   const clientOpts = await connector.getOptions({
     instanceConnectionName,
     ipType: IpAddressTypes.PUBLIC,
