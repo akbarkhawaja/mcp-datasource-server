@@ -15,26 +15,28 @@
     "local": "node dist/mcp-clean-claude.js",
     "bridge": "node dist/mcp-vercel-bridge.js",
     "bridge:staging": "VERCEL_URL=${STAGING_VERCEL_URL} BRIDGE_API_KEY=${STAGING_API_KEY} node dist/mcp-vercel-bridge.js",
-    "bridge:production": "VERCEL_URL=${PRODUCTION_VERCEL_URL} BRIDGE_API_KEY=${PRODUCTION_API_KEY} node dist/mcp-vercel-bridge.js"
+    "bridge:production": "VERCEL_URL=${PRODUCTION_VERCEL_URL} BRIDGE_API_KEY=${PRODUCTION_API_KEY} node dist/mcp-vercel-bridge.js",
+    "proxy": "node dist/mcp-proxy-local.js"
   },
   "dependencies": {
+    "@google-cloud/cloud-sql-connector": "^1.8.2",
     "@modelcontextprotocol/sdk": "^1.0.0",
+    "@vercel/node": "^3.0.21",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
     "express": "^4.19.2",
-    "helmet": "^7.1.0",
     "express-rate-limit": "^7.2.0",
+    "helmet": "^7.1.0",
     "joi": "^17.12.2",
     "mysql2": "^3.9.2",
     "neo4j-driver": "^5.18.0",
-    "winston": "^3.12.0",
-    "dotenv": "^16.4.5",
-    "cors": "^2.8.5",
-    "@vercel/node": "^3.0.21"
+    "winston": "^3.12.0"
   },
   "devDependencies": {
-    "@types/express": "^4.17.21",
-    "@types/node": "^20.12.7",
     "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
     "@types/jest": "^29.5.12",
+    "@types/node": "^20.12.7",
     "@typescript-eslint/eslint-plugin": "^7.7.0",
     "@typescript-eslint/parser": "^7.7.0",
     "eslint": "^8.57.0",

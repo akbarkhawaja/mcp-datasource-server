@@ -12,6 +12,7 @@ yarn-error.log*
 .env.production.local
 .env.staging
 .env.production
+.env.proxy
 
 # Build output
 dist/

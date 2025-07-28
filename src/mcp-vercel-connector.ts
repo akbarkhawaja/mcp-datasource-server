@@ -66,11 +66,6 @@ async function createConnection() {
     throw new Error('INSTANCE_CONNECTION_NAME environment variable is required');
   }
   
-  // Check if we have the required credentials
-  if (!process.env.DB_USER || !process.env.DB_PASSWORD || !process.env.DB_NAME) {
-    throw new Error('Missing required database credentials: DB_USER, DB_PASSWORD, DB_NAME');
-  }
-  
   const clientOpts = await connector.getOptions({
     instanceConnectionName,
     ipType: IpAddressTypes.PUBLIC,
@@ -153,7 +148,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
         const { pathname } = new URL(req.url!, `http://${req.headers.host}`);
 
-        if (pathname === '/api/mcp-connector/health' || pathname === '/api/health') {
+        if (pathname === '/api/health') {
           try {
             const connection = await createConnection();
             await connection.execute('SELECT 1');
@@ -176,7 +171,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           return resolve(res);
         }
 
-        if (pathname === '/api/mcp-connector/tools/list' || pathname === '/api/mcp/tools/list') {
+        if (pathname === '/api/mcp/tools/list') {
           const tools = [
             {
               name: 'health_check',
@@ -212,7 +207,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           return resolve(res);
         }
 
-        if ((pathname === '/api/mcp-connector/tools/call' || pathname === '/api/mcp/tools/call') && req.method === 'POST') {
+        if (pathname === '/api/mcp/tools/call' && req.method === 'POST') {
           const { name, arguments: args } = req.body;
 
           if (name === 'health_check') {
