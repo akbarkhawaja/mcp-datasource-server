@@ -151,7 +151,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           return resolve(res);
         }
 
-        const { pathname, searchParams } = new URL(req.url!, `http://${req.headers.host}`);
+        let pathname, searchParams;
+        try {
+          const url = new URL(req.url!, `http://${req.headers.host}`);
+          pathname = url.pathname;
+          searchParams = url.searchParams;
+        } catch (error) {
+          // Fallback parsing
+          pathname = req.url?.split('?')[0] || '/';
+          const queryString = req.url?.split('?')[1] || '';
+          searchParams = new URLSearchParams(queryString);
+        }
 
         // Handle /api/mcp-connector route with different actions
         // Accept any pathname that ends with mcp-connector or is exactly the route
