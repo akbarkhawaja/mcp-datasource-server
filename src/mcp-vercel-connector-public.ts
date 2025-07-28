@@ -151,137 +151,145 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           return resolve(res);
         }
 
-        const { pathname } = new URL(req.url!, `http://${req.headers.host}`);
+        const { pathname, searchParams } = new URL(req.url!, `http://${req.headers.host}`);
 
-        if (pathname === '/api/mcp-connector/health' || pathname === '/api/health') {
-          try {
-            const connection = await createConnection();
-            await connection.execute('SELECT 1');
-            await connection.end();
-            
-            res.status(200).json({
-              status: 'healthy',
-              timestamp: new Date().toISOString(),
-              version: '1.0.0',
-              message: 'MCP Datasource Server (Cloud SQL Connector)',
-              connection: 'Cloud SQL Connector'
-            });
-          } catch (error) {
-            res.status(500).json({
-              status: 'unhealthy',
-              timestamp: new Date().toISOString(),
-              error: error instanceof Error ? error.message : 'Database connection failed'
-            });
-          }
-          return resolve(res);
-        }
-
-        if (pathname === '/api/mcp-connector/tools/list' || pathname === '/api/mcp/tools/list') {
-          const tools = [
-            {
-              name: 'health_check',
-              description: 'Check server health via Cloud SQL Connector',
-              inputSchema: {
-                type: 'object',
-                properties: {},
-                required: []
-              }
-            },
-            {
-              name: 'query_database',
-              description: 'Execute safe database queries via Cloud SQL Connector',
-              inputSchema: {
-                type: 'object',
-                properties: {
-                  query: {
-                    type: 'string',
-                    description: 'Safe SQL query (SHOW, DESCRIBE, basic SELECT only)'
-                  },
-                  limit: {
-                    type: 'number',
-                    description: 'Maximum results (max: 100)',
-                    maximum: 100
-                  }
-                },
-                required: ['query']
-              }
-            }
-          ];
+        // Handle /api/mcp-connector route with different actions
+        if (pathname === '/api/mcp-connector') {
+          const action = searchParams.get('action') || 'health';
           
-          res.status(200).json({ tools });
-          return resolve(res);
-        }
-
-        if ((pathname === '/api/mcp-connector/tools/call' || pathname === '/api/mcp/tools/call') && req.method === 'POST') {
-          const { name, arguments: args } = req.body;
-
-          if (name === 'health_check') {
+          if (action === 'health') {
             try {
               const connection = await createConnection();
               await connection.execute('SELECT 1');
               await connection.end();
               
               res.status(200).json({
-                content: [{
-                  type: 'text',
-                  text: JSON.stringify({
-                    status: 'healthy',
-                    timestamp: new Date().toISOString(),
-                    message: 'MCP Datasource Server (Cloud SQL Connector) is running',
-                    connection: 'Cloud SQL Connector'
-                  }, null, 2)
-                }]
+                status: 'healthy',
+                timestamp: new Date().toISOString(),
+                version: '1.0.0',
+                message: 'MCP Datasource Server (Cloud SQL Connector)',
+                connection: 'Cloud SQL Connector'
               });
             } catch (error) {
-              res.status(200).json({
-                content: [{
-                  type: 'text',
-                  text: JSON.stringify({
-                    success: false,
-                    error: error instanceof Error ? error.message : 'Database connection failed',
-                    connection: 'Cloud SQL Connector'
-                  }, null, 2)
-                }],
-                isError: true
+              res.status(500).json({
+                status: 'unhealthy',
+                timestamp: new Date().toISOString(),
+                error: error instanceof Error ? error.message : 'Database connection failed'
               });
             }
             return resolve(res);
           }
-
-          if (name === 'query_database') {
-            try {
-              const query = args?.query;
-              const limit = Math.min(args?.limit || 50, 100);
-
-              if (!query || typeof query !== 'string') {
-                throw new Error('Query parameter is required and must be a string');
+          
+          if (action === 'tools') {
+            const tools = [
+              {
+                name: 'health_check',
+                description: 'Check server health via Cloud SQL Connector',
+                inputSchema: {
+                  type: 'object',
+                  properties: {},
+                  required: []
+                }
+              },
+              {
+                name: 'query_database',
+                description: 'Execute safe database queries via Cloud SQL Connector',
+                inputSchema: {
+                  type: 'object',
+                  properties: {
+                    query: {
+                      type: 'string',
+                      description: 'Safe SQL query (SHOW, DESCRIBE, basic SELECT only)'
+                    },
+                    limit: {
+                      type: 'number',
+                      description: 'Maximum results (max: 100)',
+                      maximum: 100
+                    }
+                  },
+                  required: ['query']
+                }
               }
-
-              const result = await executeSafeQuery(query, limit);
-              
-              res.status(200).json({
-                content: [{
-                  type: 'text',
-                  text: JSON.stringify(result, null, 2)
-                }]
-              });
-            } catch (error) {
-              res.status(200).json({
-                content: [{
-                  type: 'text',
-                  text: JSON.stringify({
-                    success: false,
-                    error: error instanceof Error ? error.message : 'Unknown error',
-                    connection: 'Cloud SQL Connector'
-                  }, null, 2)
-                }],
-                isError: true
-              });
-            }
+            ];
+            
+            res.status(200).json({ tools });
             return resolve(res);
           }
+          
+          if (action === 'call' && req.method === 'POST') {
+            const { name, arguments: args } = req.body;
 
-          res.status(404).json({ error: 'Tool not found' });
+            if (name === 'health_check') {
+              try {
+                const connection = await createConnection();
+                await connection.execute('SELECT 1');
+                await connection.end();
+                
+                res.status(200).json({
+                  content: [{
+                    type: 'text',
+                    text: JSON.stringify({
+                      status: 'healthy',
+                      timestamp: new Date().toISOString(),
+                      message: 'MCP Datasource Server (Cloud SQL Connector) is running',
+                      connection: 'Cloud SQL Connector'
+                    }, null, 2)
+                  }]
+                });
+              } catch (error) {
+                res.status(200).json({
+                  content: [{
+                    type: 'text',
+                    text: JSON.stringify({
+                      success: false,
+                      error: error instanceof Error ? error.message : 'Database connection failed',
+                      connection: 'Cloud SQL Connector'
+                    }, null, 2)
+                  }],
+                  isError: true
+                });
+              }
+              return resolve(res);
+            }
+
+            if (name === 'query_database') {
+              try {
+                const query = args?.query;
+                const limit = Math.min(args?.limit || 50, 100);
+
+                if (!query || typeof query !== 'string') {
+                  throw new Error('Query parameter is required and must be a string');
+                }
+
+                const result = await executeSafeQuery(query, limit);
+                
+                res.status(200).json({
+                  content: [{
+                    type: 'text',
+                    text: JSON.stringify(result, null, 2)
+                  }]
+                });
+              } catch (error) {
+                res.status(200).json({
+                  content: [{
+                    type: 'text',
+                    text: JSON.stringify({
+                      success: false,
+                      error: error instanceof Error ? error.message : 'Unknown error',
+                      connection: 'Cloud SQL Connector'
+                    }, null, 2)
+                  }],
+                  isError: true
+                });
+              }
+              return resolve(res);
+            }
+
+            res.status(404).json({ error: 'Tool not found' });
+            return resolve(res);
+          }
+          
+          res.status(400).json({ error: 'Invalid action', message: 'Supported actions: health, tools, call' });
           return resolve(res);
         }
 
