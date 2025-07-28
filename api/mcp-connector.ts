@@ -204,16 +204,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
               res.status(500).json({
                 status: 'unhealthy',
                 timestamp: new Date().toISOString(),
-                error: error instanceof Error ? error.message : 'Database connection failed',
-                debug: {
-                  hasGoogleCreds: !!process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON,
-                  hasInstanceName: !!process.env.INSTANCE_CONNECTION_NAME,
-                  hasDbUser: !!process.env.DB_USER,
-                  hasDbPassword: !!process.env.DB_PASSWORD,
-                  hasDbName: !!process.env.DB_NAME,
-                  instanceName: process.env.INSTANCE_CONNECTION_NAME?.substring(0, 20) + '...',
-                  dbUser: process.env.DB_USER
-                }
+                error: error instanceof Error ? error.message : 'Database connection failed'
               });
             }
             return resolve(res);

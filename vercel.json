@@ -16,10 +16,6 @@
       "dest": "/api/mcp-connector.ts"
     },
     {
-      "src": "/api/test-connector",
-      "dest": "/api/test-connector.ts"
-    },
-    {
       "src": "/api/health",
       "dest": "/api/mcp.ts"
     },
