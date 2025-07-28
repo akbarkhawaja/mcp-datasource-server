@@ -16,7 +16,8 @@
     "bridge": "node dist/mcp-vercel-bridge.js",
     "bridge:staging": "VERCEL_URL=${STAGING_VERCEL_URL} BRIDGE_API_KEY=${STAGING_API_KEY} node dist/mcp-vercel-bridge.js",
     "bridge:production": "VERCEL_URL=${PRODUCTION_VERCEL_URL} BRIDGE_API_KEY=${PRODUCTION_API_KEY} node dist/mcp-vercel-bridge.js",
-    "proxy": "node dist/mcp-proxy-local.js"
+    "proxy": "node dist/mcp-proxy-local.js",
+    "connector": "node dist/mcp-connector-bridge.js"
   },
   "dependencies": {
     "@google-cloud/cloud-sql-connector": "^1.8.2",
