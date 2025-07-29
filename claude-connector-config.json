@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "datasource-connector": {
+      "command": "/usr/bin/node",
+      "args": ["/path/to/your/project/dist/mcp-connector-bridge.js"],
+      "env": {
+        "VERCEL_URL": "https://your-preview-deployment.vercel.app",
+        "BRIDGE_API_KEY": "your-preview-api-key-here"
+      }
+    }
+  }
+}
